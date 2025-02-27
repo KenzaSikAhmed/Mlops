@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/290979759001679794/738e7502b95e427db44ca8a805b7303e/artifacts
+end_time: 1739484563863
+entry_point_name: ''
+experiment_id: '290979759001679794'
+lifecycle_stage: active
+run_id: 738e7502b95e427db44ca8a805b7303e
+run_name: dazzling-worm-74
+run_uuid: 738e7502b95e427db44ca8a805b7303e
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1739484548201
+status: 3
+tags: []
+user_id: kenza

@@ -1,0 +1,6 @@
+artifact_location: mlflow-artifacts:/290979759001679794
+creation_time: 1739483585321
+experiment_id: '290979759001679794'
+last_update_time: 1739483585321
+lifecycle_stage: active
+name: Churn Prediction with SVM

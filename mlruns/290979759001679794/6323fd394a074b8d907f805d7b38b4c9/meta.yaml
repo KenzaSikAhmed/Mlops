@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/290979759001679794/6323fd394a074b8d907f805d7b38b4c9/artifacts
+end_time: 1739484173833
+entry_point_name: ''
+experiment_id: '290979759001679794'
+lifecycle_stage: active
+run_id: 6323fd394a074b8d907f805d7b38b4c9
+run_name: chill-squid-758
+run_uuid: 6323fd394a074b8d907f805d7b38b4c9
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1739484157679
+status: 3
+tags: []
+user_id: kenza
