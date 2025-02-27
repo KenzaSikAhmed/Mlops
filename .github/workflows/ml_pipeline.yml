@@ -1,0 +1,79 @@
+name: ML Pipeline Automation
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+
+      - name: Install dependencies
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+  code_quality:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Linting and Formatting
+        run: |
+          source venv/bin/activate
+          flake8 .  # Vérification de la qualité du code
+          black --check .  # Vérification du formatage
+
+  data_preprocessing:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Prepare Data
+        run: |
+          source venv/bin/activate
+          python main.py --prepare
+
+  training:
+    needs: data_preprocessing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Train Model
+        run: |
+          source venv/bin/activate
+          python main.py --train
+
+  testing:
+    needs: training
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run Tests
+        run: |
+          source venv/bin/activate
+          pytest  # Si tu utilises unittest, remplace par `python -m unittest`
+
