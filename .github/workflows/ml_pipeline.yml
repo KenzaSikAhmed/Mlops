@@ -19,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
+          python-version: '3.8'  # Version alignée avec `requirements.txt`
 
       - name: Install dependencies
         run: |
@@ -35,6 +35,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+
+      - name: Install dependencies
+        run: |
+          source venv/bin/activate
+          pip install flake8 black
+
       - name: Linting and Formatting
         run: |
           source venv/bin/activate
@@ -48,6 +58,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+
+      - name: Install dependencies
+        run: |
+          source venv/bin/activate
+          pip install numpy pandas scikit-learn matplotlib joblib
+
       - name: Prepare Data
         run: |
           source venv/bin/activate
@@ -59,6 +79,16 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+
+      - name: Install dependencies
+        run: |
+          source venv/bin/activate
+          pip install numpy pandas scikit-learn matplotlib joblib
 
       - name: Train Model
         run: |
@@ -72,8 +102,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+
+      - name: Install dependencies
+        run: |
+          source venv/bin/activate
+          pip install pytest
+
       - name: Run Tests
         run: |
           source venv/bin/activate
           pytest  # Si tu utilises unittest, remplace par `python -m unittest`
+
 
