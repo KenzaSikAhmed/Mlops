@@ -7,7 +7,10 @@ mlflow
 fastapi
 uvicorn
 joblib
-fastapi
-uvicorn
+flake8
+black
 
 
+numpy
+flake8
+black
