@@ -22,13 +22,14 @@ jobs:
           python-version: '3.8'  # Version alignée avec `requirements.txt`
 
       - name: Install dependencies
-        run: |
-          python -m venv venv
-          source venv/bin/activate
-          pip install --upgrade pip
-          pip install -r requirements.txt
-
-  code_quality:
+  run: |
+    python -m venv venv
+    source venv/bin/activate
+    pip install --upgrade pip
+    pip install -r requirements.txt
+    pip install mlflow  # Ajout manuel pour éviter l'erreur
+  
+code_quality:
     needs: setup
     runs-on: ubuntu-latest
     steps:
