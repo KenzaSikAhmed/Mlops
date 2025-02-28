@@ -3,69 +3,105 @@ import pandas as pd
 import joblib
 import argparse
 import logging
-from sklearn.model_selection import train_test_split, StratifiedKFold, GridSearchCV
-from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.ensemble import AdaBoostClassifier
-from sklearn.metrics import accuracy_score, classification_report
-from sklearn.tree import DecisionTreeClassifier
+import os
+from sklearn.metrics import accuracy_score
 import mlflow
 import mlflow.sklearn
 
-# Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Configuration du logging
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
-# MLflow configuration
-mlflow.set_tracking_uri("http://127.0.0.1:5000")  # Set your MLflow tracking URI
+# Configuration de MLflow
+mlflow.set_tracking_uri("http://0.0.0.0:5000")
+# Remplace par ton URI MLflow si besoin
 mlflow.set_experiment("Churn Prediction with SVM")
 
+# Importation des fonctions du fichier model_pipeline.py
+from model_pipeline import (
+    prepare_data,
+    train_model,
+    evaluate_model,
+    save_model,
+    load_model,
+)
 
-from model_pipeline import prepare_data, train_model, evaluate_model, save_model, load_model
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--prepare", action="store_true", help="Préparer les données")
-    parser.add_argument("--train", action="store_true", help="Entraîner le modèle")
-    parser.add_argument("--evaluate", action="store_true", help="Évaluer le modèle")
-    parser.add_argument("--data_path", type=str, default="merged_churn1.csv.csv", help="Chemin du jeu de données")
+    parser.add_argument("--train", action="store_true", help="Entraîner le modèle SVM")
+    parser.add_argument("--evaluate", action="store_true", help="Évaluer le modèle SVM")
+    parser.add_argument(
+        "--data_path",
+        type=str,
+        default="merged_churn1.csv.csv",
+        help="Chemin du jeu de données",
+    )
     args = parser.parse_args()
 
     if args.prepare:
-        print("📊 Préparation des données en cours...")
-        X_train, X_test, y_train, y_test = prepare_data(args.data_path)  # ✅ FIXED unpacking issue
-        print("✅ Données préparées avec succès.")
-        print(f"Taille de l'ensemble d'entraînement : {X_train.shape[0]} échantillons")
-        print(f"Taille de l'ensemble de test : {X_test.shape[0]} échantillons")
+        try:
+            print("📊 Préparation des données en cours...")
+            X_train, X_test, y_train, y_test = prepare_data(args.data_path)
+            print("✅ Données préparées avec succès.")
+            print(
+                f"Taille de l'ensemble d'entraînement : {X_train.shape[0]} échantillons"
+            )
+            print(f"Taille de l'ensemble de test : {X_test.shape[0]} échantillons")
+        except Exception as e:
+            print(f"❌ Erreur lors de la préparation des données : {e}")
+            return
 
     if args.train:
-        print("🚀 Entraînement du modèle en cours...")
-        X_train, X_test, y_train, y_test = prepare_data(args.data_path)  # ✅ FIXED
-        
-        # Démarrer une expérience MLflow
-        with mlflow.start_run():
-            # Entraînement du modèle
-            model = train_model(X_train, y_train)
+        try:
+            print("🚀 Entraînement du modèle SVM en cours...")
+            X_train, X_test, y_train, y_test = prepare_data(args.data_path)
 
-            # Enregistrer les hyperparamètres utilisés
-            mlflow.log_param("Model Type", "AdaBoostClassifier")  # Remplacer par le type de modèle réel
-            mlflow.log_param("Num_estimators", 50)  # Exemple d'hyperparamètre (changer selon votre modèle)
-            
-            # Enregistrer les métriques
-            y_pred = model.predict(X_test)
-            accuracy = accuracy_score(y_test, y_pred)
-            mlflow.log_metric("accuracy", accuracy)
+            # Lancement de l'expérience MLflow
+            with mlflow.start_run():
+                # Entraînement du modèle SVM avec GridSearchCV
+                model = train_model(X_train, y_train)
 
-            # Sauvegarder le modèle avec MLflow
-            mlflow.sklearn.log_model(model, "model")
+                # Enregistrer les hyperparamètres optimaux
+                mlflow.log_param("Model Type", "SVM")
+                mlflow.log_param("Best C", model.best_params_["C"])
+                mlflow.log_param("Best Kernel", model.best_params_["kernel"])
 
-            print("✅ Modèle entraîné et sauvegardé avec MLflow.")
-            print(f"MLflow run ID: {mlflow.active_run().info.run_id}")
+                # Évaluation avant sauvegarde
+                y_pred = model.predict(X_test)
+                accuracy = accuracy_score(y_test, y_pred)
+                mlflow.log_metric("accuracy", accuracy)
+
+                # Sauvegarde du modèle
+                save_model(model, "model.pkl")
+                mlflow.sklearn.log_model(model, "model")
+
+                print(
+                    f"✅ Modèle SVM entraîné et sauvegardé avec MLflow. Accuracy : {accuracy:.4f}"
+                )
+                print(f"MLflow run ID: {mlflow.active_run().info.run_id}")
+
+        except Exception as e:
+            print(f"❌ Erreur lors de l'entraînement du modèle SVM : {e}")
 
     if args.evaluate:
-        print("🔍 Évaluation du modèle en cours...")
-        X_train, X_test, y_train, y_test = prepare_data(args.data_path)  # ✅ FIXED
-        model = load_model()
-        evaluate_model(model, X_test, y_test)
+        try:
+            print("🔍 Évaluation du modèle SVM en cours...")
+            if not os.path.exists("model.pkl"):
+                raise FileNotFoundError(
+                    "❌ Le fichier model.pkl est introuvable. Entraînez le modèle d'abord."
+                )
+
+            X_train, X_test, y_train, y_test = prepare_data(args.data_path)
+            model = load_model("model.pkl")
+            accuracy = evaluate_model(model, X_test, y_test)
+            print(f"✅ Évaluation terminée. Accuracy : {accuracy:.4f}")
+
+        except Exception as e:
+            print(f"❌ Erreur lors de l'évaluation : {e}")
+
 
 if __name__ == "__main__":
     main()
-

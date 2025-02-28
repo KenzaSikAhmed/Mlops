@@ -23,7 +23,17 @@ jobs:
 
       - name: Install Dependencies
         run: |
+          pip install --upgrade pip
           pip install -r requirements.txt
+          pip install mlflow  # Ajout de MLflow
+
+      - name: Start MLflow Tracking Server
+        run: |
+          mkdir -p mlruns
+          nohup mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlruns --host 0.0.0.0 --port 5000 &
+
+      - name: Wait for MLflow Server
+        run: sleep 10  # Pause pour que MLflow démarre
 
       - name: Run Data Preprocessing
         run: |
@@ -44,7 +54,16 @@ jobs:
 
       - name: Install Dependencies
         run: |
+          pip install --upgrade pip
           pip install -r requirements.txt
+          pip install mlflow
+
+      - name: Start MLflow Tracking Server
+        run: |
+          nohup mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlruns --host 0.0.0.0 --port 5000 &
+
+      - name: Wait for MLflow Server
+        run: sleep 10
 
       - name: Train Model
         run: |
@@ -71,7 +90,16 @@ jobs:
 
       - name: Install Dependencies
         run: |
+          pip install --upgrade pip
           pip install -r requirements.txt
+          pip install mlflow
+
+      - name: Start MLflow Tracking Server
+        run: |
+          nohup mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlruns --host 0.0.0.0 --port 5000 &
+
+      - name: Wait for MLflow Server
+        run: sleep 10
 
       - name: Download Model
         uses: actions/download-artifact@v3
