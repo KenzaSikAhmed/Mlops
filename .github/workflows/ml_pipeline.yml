@@ -14,12 +14,15 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4  # 🔥 Mise à jour vers v4
+        uses: actions/checkout@v4  
 
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.8"
+
+      - name: Disable MLflow Tracking in GitHub Actions
+        run: echo "GITHUB_ACTIONS=true" >> $GITHUB_ENV  # ⬅ Ajout pour désactiver MLflow
 
       - name: Install Dependencies
         run: |
@@ -37,12 +40,15 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4  # 🔥 Mise à jour vers v4
+        uses: actions/checkout@v4  
 
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.8"
+
+      - name: Disable MLflow Tracking in GitHub Actions
+        run: echo "GITHUB_ACTIONS=true" >> $GITHUB_ENV  
 
       - name: Install Dependencies
         run: |
@@ -50,16 +56,12 @@ jobs:
           pip install -r requirements.txt
           pip install mlflow
 
-      - name: Start MLflow Tracking Server (if needed)
-        run: |
-          nohup mlflow server --backend-store-uri sqlite:///mlflow.db --host 0.0.0.0 --port 5000 &
-
       - name: Train Model
         run: |
           python main.py --train --data_path merged_churn1.csv.csv
 
       - name: Upload Model Artifacts
-        uses: actions/upload-artifact@v4  # 🔥 Correction ici
+        uses: actions/upload-artifact@v4  
         with:
           name: trained-model
           path: model.pkl
@@ -70,12 +72,15 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4  # 🔥 Mise à jour vers v4
+        uses: actions/checkout@v4  
 
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.8"
+
+      - name: Disable MLflow Tracking in GitHub Actions
+        run: echo "GITHUB_ACTIONS=true" >> $GITHUB_ENV  
 
       - name: Install Dependencies
         run: |
@@ -84,7 +89,7 @@ jobs:
           pip install mlflow
 
       - name: Download Model
-        uses: actions/download-artifact@v4  # 🔥 Correction ici
+        uses: actions/download-artifact@v4  
         with:
           name: trained-model
           path: .
