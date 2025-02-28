@@ -7,95 +7,84 @@ on:
   pull_request:
     branches:
       - main
-  workflow_dispatch: # Permet de déclencher manuellement le pipeline
 
 jobs:
-  prepare-data:
-    name: Préparation des données
+  # 1. Préparation des données
+  data_preprocessing:
     runs-on: ubuntu-latest
     steps:
-      - name: 🛠️ Cloner le repo
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: 📦 Installer Python et dépendances
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
+          python-version: 3.8
 
-      - name: 📦 Installer les dépendances
+      - name: Install Dependencies
         run: |
-          pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: 📊 Exécuter la préparation des données
-        run: python main.py --prepare
+      - name: Run Data Preprocessing
+        run: python scripts/data_preprocessing.py
 
-  train-model:
-    name: Entraînement du modèle
+  # 2. Entraînement du modèle
+  train_model:
+    needs: data_preprocessing
     runs-on: ubuntu-latest
-    needs: prepare-data  # Exécute cette étape après prepare-data
     steps:
-      - name: 🛠️ Cloner le repo
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: 📦 Installer Python et dépendances
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
+          python-version: 3.8
 
-      - name: 📦 Installer les dépendances
+      - name: Install Dependencies
         run: |
-          pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: 🚀 Entraîner le modèle SVM
-        run: python main.py --train
+      - name: Train Model
+        run: python scripts/train.py
 
-      - name: 💾 Sauvegarder le modèle
-        uses: actions/upload-artifact@v3
-        with:
-          name: model.pkl
-          path: model.pkl
-
-  evaluate-model:
-    name: Évaluation du modèle
+  # 3. Évaluation du modèle
+  evaluate_model:
+    needs: train_model
     runs-on: ubuntu-latest
-    needs: train-model
     steps:
-      - name: 🛠️ Cloner le repo
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: 📦 Installer Python et dépendances
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
+          python-version: 3.8
 
-      - name: 📦 Installer les dépendances
+      - name: Install Dependencies
         run: |
-          pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: 🔍 Évaluer le modèle
-        run: python main.py --evaluate
+      - name: Evaluate Model
+        run: python scripts/evaluate.py
 
-  run-tests:
-    name: Tests unitaires
+  # 4. Tests unitaires
+  unit_tests:
+    needs: evaluate_model
     runs-on: ubuntu-latest
-    needs: train-model
     steps:
-      - name: 🛠️ Cloner le repo
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: 📦 Installer Python et dépendances
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
+          python-version: 3.8
 
-      - name: 📦 Installer les dépendances
+      - name: Install Dependencies
         run: |
-          pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: ✅ Exécuter les tests
-        run: pytest -v test_model_pipeline.py
+      - name: Run Unit Tests
+        run: pytest tests/
 
