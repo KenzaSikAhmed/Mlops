@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4  # 🔥 Mise à jour vers v4
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -25,15 +25,7 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
-          pip install mlflow  # Ajout de MLflow
-
-      - name: Start MLflow Tracking Server
-        run: |
-          mkdir -p mlruns
-          nohup mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlruns --host 0.0.0.0 --port 5000 &
-
-      - name: Wait for MLflow Server
-        run: sleep 10  # Pause pour que MLflow démarre
+          pip install mlflow
 
       - name: Run Data Preprocessing
         run: |
@@ -45,7 +37,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4  # 🔥 Mise à jour vers v4
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -58,19 +50,16 @@ jobs:
           pip install -r requirements.txt
           pip install mlflow
 
-      - name: Start MLflow Tracking Server
+      - name: Start MLflow Tracking Server (if needed)
         run: |
-          nohup mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlruns --host 0.0.0.0 --port 5000 &
-
-      - name: Wait for MLflow Server
-        run: sleep 10
+          nohup mlflow server --backend-store-uri sqlite:///mlflow.db --host 0.0.0.0 --port 5000 &
 
       - name: Train Model
         run: |
           python main.py --train --data_path merged_churn1.csv.csv
 
       - name: Upload Model Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4  # 🔥 Correction ici
         with:
           name: trained-model
           path: model.pkl
@@ -81,7 +70,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4  # 🔥 Mise à jour vers v4
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -94,15 +83,8 @@ jobs:
           pip install -r requirements.txt
           pip install mlflow
 
-      - name: Start MLflow Tracking Server
-        run: |
-          nohup mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlruns --host 0.0.0.0 --port 5000 &
-
-      - name: Wait for MLflow Server
-        run: sleep 10
-
       - name: Download Model
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4  # 🔥 Correction ici
         with:
           name: trained-model
           path: .
